@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Calculator</title>
+  <link rel="shortcut icon" type="image/x-icon" href="Math Help/favicon.ico">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+    
+    #calculator {
+      background-color: #333;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      width: 80%;
+      max-width: 300px;
+    }
+    
+    .row {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    
+    .button {
+      flex: 1;
+      padding: 10px;
+      margin: 5px;
+      font-size: 20px;
+      border: none;
+      background-color: #666;
+      color: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s, color 0.3s;
+    }
+    
+    .button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+
+    #output {
+      font-size: 28px;
+      padding: 10px;
+      margin-bottom: 10px;
+      text-align: right;
+      color: #fff;
+      border-radius: 10px;
+      overflow: auto; /* Enable scrolling for overflow content */
+      width: calc(100% - 20px); /* Adjust width for padding */
+      max-width: 100%; /* Ensure it doesn't exceed parent's width */
+    }
+
+    #output.show-answer {
+      transform: scale(1.1);
+    }
+
+    #colorPickerButton {
+      flex: 1;
+      padding: 10px;
+      margin: 5px;
+      font-size: 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+
+    #colorPickerButton:hover {
+      transform: scale(1.05);
+    }
+
+    #colorPickerContainer {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    #colorPickerContainer > div {
+      margin-left: 10px;
+    }
+
+    #colorPickerContainer > input[type="color"] {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="calculator">
+  <div id="output"></div>
+  <div class="row">
+    <button class="button" onclick="addToOutput('7')">7</button>
+    <button class="button" onclick="addToOutput('8')">8</button>
+    <button class="button" onclick="addToOutput('9')">9</button>
+    <button class="button" onclick="addToOutput('/')">/</button>
+  </div>
+  <div class="row">
+    <button class="button" onclick="addToOutput('4')">4</button>
+    <button class="button" onclick="addToOutput('5')">5</button>
+    <button class="button" onclick="addToOutput('6')">6</button>
+    <button class="button" onclick="addToOutput('*')">*</button>
+  </div>
+  <div class="row">
+    <button class="button" onclick="addToOutput('1')">1</button>
+    <button class="button" onclick="addToOutput('2')">2</button>
+    <button class="button" onclick="addToOutput('3')">3</button>
+    <button class="button" onclick="addToOutput('-')">-</button>
+  </div>
+  <div class="row">
+    <button class="button" onclick="addToOutput('0')">0</button>
+    <button class="button" onclick="addToOutput('.')">.</button>
+    <button class="button" onclick="calculate()">=</button>
+    <button class="button" onclick="addToOutput('+')">+</button>
+  </div>
+  <div class="row">
+    <button class="button" onclick="clearCalculator()">Clear</button>
+    <div id="colorPickerContainer">
+      <div id="colorPickerButton" onclick="document.getElementById('colorPicker').click()">Color Picker</div>
+      <input type="color" id="colorPicker" onchange="changeColors()">
+    </div>
+  </div>
+</div>
+
+<script>
+  function addToOutput(value) {
+    var output = document.getElementById('output');
+    if (output.textContent === '0' && value !== '.') {
+      output.textContent = '';
+    }
+    output.textContent += value;
+  }
+
+  function calculate() {
+    var output = document.getElementById('output');
+    try {
+      var result = eval(output.textContent);
+      if (result.toString().length > 16) {
+        result = result.toExponential(10);
+      }
+      output.textContent = result;
+      output.classList.add('show-answer');
+      setTimeout(function() {
+        output.classList.remove('show-answer');
+      }, 300);
+    } catch (error) {
+      output.textContent = 'Error';
+    }
+  }
+
+  function clearCalculator() {
+    window.location.reload();
+  }
+
+  function changeColors() {
+    var calculator = document.getElementById('calculator');
+    var buttons = document.querySelectorAll('.button');
+    var output = document.getElementById('output');
+    var colorPicker = document.getElementById('colorPicker').value;
+
+    // Set colors
+    var backgroundColor = colorPicker;
+    var buttonColor = shadeColor(backgroundColor, -20);
+    var hoverColor = shadeColor(backgroundColor, -30);
+    var textColor = getContrastColor(backgroundColor); // Get contrast text color
+
+    calculator.style.backgroundColor = backgroundColor;
+    output.style.backgroundColor = backgroundColor;
+    output.style.color = textColor;
+    buttons.forEach(function(button) {
+      button.style.backgroundColor = buttonColor;
+      button.style.color = textColor;
+    });
+
+    // Update color picker button color and text color
+    var colorPickerButton = document.getElementById('colorPickerButton');
+    colorPickerButton.style.backgroundColor = buttonColor;
+    colorPickerButton.style.color = textColor;
+
+    // Add hover effect
+    colorPickerButton.addEventListener('mouseover', function() {
+      colorPickerButton.style.backgroundColor = hoverColor;
+    });
+    colorPickerButton.addEventListener('mouseout', function() {
+      colorPickerButton.style.backgroundColor = buttonColor;
+    });
+  }
+
+  // Function to adjust color brightness
+  function shadeColor(color, percent) {   
+    var num = parseInt(color.slice(1), 16),
+        amt = Math.round(2.55 * percent),
+        R = (num >> 16) + amt,
+        G = (num >> 8 & 0x00FF) + amt,
+        B = (num & 0x0000FF) + amt;
+    return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+  }
+
+  // Function to get contrast text color
+  function getContrastColor(hexColor) {
+    var r = parseInt(hexColor.substr(1, 2), 16);
+    var g = parseInt(hexColor.substr(3, 2), 16);
+    var b = parseInt(hexColor.substr(5, 2), 16);
+    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? '#000' : '#fff';
+  }
+</script>
+
+</body>
+</html>
